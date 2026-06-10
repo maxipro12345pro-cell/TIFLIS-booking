@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, Info, MapPin, Phone, UsersRound } from 'lucide-react';
+import { CalendarDays, ChevronLeft, Info, MapPin, Phone, UsersRound, X } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { LuxuryReveal } from '../components/LuxuryMotion.jsx';
@@ -203,6 +203,7 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [reservedTableIds, setReservedTableIds] = useState([]);
+  const [isDetailsPopoverOpen, setIsDetailsPopoverOpen] = useState(false);
 
   const slots = useMemo(() => {
     if (!currentBranch) return [];
@@ -220,6 +221,7 @@ export default function BookingPage() {
     if (!currentBranch) return;
     setActiveArea(currentBranch.slug === 'ryscanovka' ? 'gazebo' : 'main');
     setForm((current) => ({ ...current, table: null }));
+    setIsDetailsPopoverOpen(false);
   }, [currentBranch]);
 
   useEffect(() => {
@@ -331,22 +333,32 @@ export default function BookingPage() {
     setMergeWarning('');
 
     if (!isBanquetMode) {
+      if (form.table?.id === table.id) {
+        setIsDetailsPopoverOpen(true);
+        return;
+      }
+
+      setIsDetailsPopoverOpen(false);
       updateForm({ table, tables: [] });
       return;
     }
 
     const alreadySelected = form.tables.some((item) => item.id === table.id);
 
+    if (alreadySelected) {
+      setIsDetailsPopoverOpen(true);
+      return;
+    }
+
     if (!alreadySelected && !canMergeTable(form.tables, table)) {
       setMergeWarning(bookingCopy.mergeWarning);
       return;
     }
 
+    setIsDetailsPopoverOpen(false);
     updateForm({
       table: null,
-      tables: alreadySelected
-        ? form.tables.filter((item) => item.id !== table.id)
-        : [...form.tables, table],
+      tables: [...form.tables, table],
     });
   };
 
@@ -464,39 +476,52 @@ export default function BookingPage() {
             ) : null}
 
             <LuxuryReveal subtle delay={0.12}>
-              <TableMap
-                branch={currentBranch}
-                guestsCount={guestBreakdown.guests_count}
-                reservedTableIds={reservedTableIds}
-                selectedTableId={form.table?.id}
-                selectedTableIds={form.tables.map((table) => table.id)}
-                onSelectTable={handleTableSelect}
-                activeArea={activeArea}
-                onAreaChange={(area) => {
-                  setActiveArea(area);
-                  updateForm({ table: null, tables: [] });
-                }}
-                variant="dark"
-              />
-              {selectedTables.length ? (
-                <div className="booking-selected-popover" role="status" aria-live="polite">
-                  <div className="booking-selected-popover-icon" aria-hidden="true">
-                    <Info className="h-5 w-5" />
+              <div className="booking-map-popover-anchor">
+                <TableMap
+                  branch={currentBranch}
+                  guestsCount={guestBreakdown.guests_count}
+                  reservedTableIds={reservedTableIds}
+                  selectedTableId={form.table?.id}
+                  selectedTableIds={form.tables.map((table) => table.id)}
+                  onSelectTable={handleTableSelect}
+                  activeArea={activeArea}
+                  onAreaChange={(area) => {
+                    setActiveArea(area);
+                    setIsDetailsPopoverOpen(false);
+                    updateForm({ table: null, tables: [] });
+                  }}
+                  variant="dark"
+                />
+                {selectedTables.length && isDetailsPopoverOpen ? (
+                  <div className="booking-selected-popover" role="status" aria-live="polite">
+                    <div className="booking-selected-popover-icon" aria-hidden="true">
+                      <Info className="h-5 w-5" />
+                    </div>
+                    <div className="booking-selected-popover-main">
+                      <div className="booking-selected-popover-heading">
+                        <h3 className="booking-selected-popover-title">{bookingCopy.details}</h3>
+                        <button
+                          type="button"
+                          className="booking-selected-popover-close"
+                          onClick={() => setIsDetailsPopoverOpen(false)}
+                          aria-label={copy.hostess?.close ?? 'Close'}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </div>
+                      <BookingDetailsSummary
+                        bookingCopy={bookingCopy}
+                        form={form}
+                        selectedZoneLabel={selectedZoneLabel}
+                        selectedTableNumbers={selectedTableNumbers}
+                        guestBreakdown={guestBreakdown}
+                        isBanquetMode={isBanquetMode}
+                        selectedCapacity={selectedCapacity}
+                      />
+                    </div>
                   </div>
-                  <div className="booking-selected-popover-main">
-                    <h3 className="booking-selected-popover-title">{bookingCopy.details}</h3>
-                    <BookingDetailsSummary
-                      bookingCopy={bookingCopy}
-                      form={form}
-                      selectedZoneLabel={selectedZoneLabel}
-                      selectedTableNumbers={selectedTableNumbers}
-                      guestBreakdown={guestBreakdown}
-                      isBanquetMode={isBanquetMode}
-                      selectedCapacity={selectedCapacity}
-                    />
-                  </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </LuxuryReveal>
           </LuxuryReveal>
 

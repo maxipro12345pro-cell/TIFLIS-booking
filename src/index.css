@@ -2891,6 +2891,10 @@ textarea {
   padding-bottom: 0;
 }
 
+.booking-map-popover-anchor {
+  position: relative;
+}
+
 .booking-selected-popover {
   display: flex;
   align-items: flex-start;
@@ -2929,6 +2933,37 @@ textarea {
   line-height: 1;
 }
 
+.booking-selected-popover-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.booking-selected-popover-close {
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 253, 244, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 253, 244, 0.08);
+  color: rgba(255, 253, 244, 0.76);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.booking-selected-popover-close:hover,
+.booking-selected-popover-close:focus-visible {
+  border-color: rgba(194, 138, 46, 0.58);
+  background: rgba(194, 138, 46, 0.16);
+  color: #FFFDF4;
+  outline: none;
+}
+
 .booking-selected-popover .booking-summary {
   background: rgba(27, 21, 19, 0.44);
 }
@@ -2951,19 +2986,21 @@ textarea {
   }
 
   .booking-selected-popover {
-    position: fixed;
+    position: absolute;
     right: 0.75rem;
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    bottom: 0.75rem;
     left: 0.75rem;
-    z-index: 950;
+    z-index: 90;
     align-items: flex-start;
-    flex-direction: column;
     gap: 0.35rem;
     margin-top: 0;
     padding: 0.8rem 0.9rem;
+    max-height: calc(100% - 1.5rem);
+    overflow-y: auto;
     border-color: rgba(194, 138, 46, 0.42);
     background: rgba(24, 18, 14, 0.94);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
   }
 
   .booking-selected-popover p {
