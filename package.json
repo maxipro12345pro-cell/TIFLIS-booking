@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "deploy:prod": "node scripts/deploy-production.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
