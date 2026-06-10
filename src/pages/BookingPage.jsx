@@ -476,52 +476,64 @@ export default function BookingPage() {
             ) : null}
 
             <LuxuryReveal subtle delay={0.12}>
-              <div className="booking-map-popover-anchor">
-                <TableMap
-                  branch={currentBranch}
-                  guestsCount={guestBreakdown.guests_count}
-                  reservedTableIds={reservedTableIds}
-                  selectedTableId={form.table?.id}
-                  selectedTableIds={form.tables.map((table) => table.id)}
-                  onSelectTable={handleTableSelect}
-                  activeArea={activeArea}
-                  onAreaChange={(area) => {
-                    setActiveArea(area);
-                    setIsDetailsPopoverOpen(false);
-                    updateForm({ table: null, tables: [] });
-                  }}
-                  variant="dark"
-                />
-                {selectedTables.length && isDetailsPopoverOpen ? (
-                  <div className="booking-selected-popover" role="status" aria-live="polite">
-                    <div className="booking-selected-popover-icon" aria-hidden="true">
-                      <Info className="h-5 w-5" />
-                    </div>
-                    <div className="booking-selected-popover-main">
-                      <div className="booking-selected-popover-heading">
-                        <h3 className="booking-selected-popover-title">{bookingCopy.details}</h3>
-                        <button
-                          type="button"
-                          className="booking-selected-popover-close"
-                          onClick={() => setIsDetailsPopoverOpen(false)}
-                          aria-label={copy.hostess?.close ?? 'Close'}
-                        >
-                          <X className="h-4 w-4" aria-hidden="true" />
-                        </button>
+              <TableMap
+                branch={currentBranch}
+                guestsCount={guestBreakdown.guests_count}
+                reservedTableIds={reservedTableIds}
+                selectedTableId={form.table?.id}
+                selectedTableIds={form.tables.map((table) => table.id)}
+                onSelectTable={handleTableSelect}
+                activeArea={activeArea}
+                onAreaChange={(area) => {
+                  setActiveArea(area);
+                  setIsDetailsPopoverOpen(false);
+                  updateForm({ table: null, tables: [] });
+                }}
+                variant="dark"
+              />
+              {selectedTables.length && isDetailsPopoverOpen ? (
+                <div
+                  className="booking-details-modal-backdrop"
+                  role="presentation"
+                  onClick={() => setIsDetailsPopoverOpen(false)}
+                >
+                  <div
+                    className="booking-details-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="booking-details-modal-title"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <div className="booking-selected-popover-heading">
+                      <div className="booking-selected-popover-title-row">
+                        <div className="booking-selected-popover-icon" aria-hidden="true">
+                          <Info className="h-5 w-5" />
+                        </div>
+                        <h3 id="booking-details-modal-title" className="booking-selected-popover-title">
+                          {bookingCopy.details}
+                        </h3>
                       </div>
-                      <BookingDetailsSummary
-                        bookingCopy={bookingCopy}
-                        form={form}
-                        selectedZoneLabel={selectedZoneLabel}
-                        selectedTableNumbers={selectedTableNumbers}
-                        guestBreakdown={guestBreakdown}
-                        isBanquetMode={isBanquetMode}
-                        selectedCapacity={selectedCapacity}
-                      />
+                      <button
+                        type="button"
+                        className="booking-selected-popover-close"
+                        onClick={() => setIsDetailsPopoverOpen(false)}
+                        aria-label={copy.hostess?.close ?? 'Close'}
+                      >
+                        <X className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     </div>
+                    <BookingDetailsSummary
+                      bookingCopy={bookingCopy}
+                      form={form}
+                      selectedZoneLabel={selectedZoneLabel}
+                      selectedTableNumbers={selectedTableNumbers}
+                      guestBreakdown={guestBreakdown}
+                      isBanquetMode={isBanquetMode}
+                      selectedCapacity={selectedCapacity}
+                    />
                   </div>
-                ) : null}
-              </div>
+                </div>
+              ) : null}
             </LuxuryReveal>
           </LuxuryReveal>
 

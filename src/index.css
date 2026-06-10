@@ -2891,20 +2891,30 @@ textarea {
   padding-bottom: 0;
 }
 
-.booking-map-popover-anchor {
-  position: relative;
+.booking-details-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 2, 2, 0.68);
+  padding: 1rem;
+  backdrop-filter: blur(5px);
 }
 
-.booking-selected-popover {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-top: 0.85rem;
-  border: 1px solid rgba(194, 138, 46, 0.28);
+.booking-details-modal {
+  width: min(100%, 27rem);
+  max-height: min(82vh, 34rem);
+  overflow-y: auto;
+  border: 1px solid rgba(194, 138, 46, 0.42);
   border-radius: 1rem;
-  background: rgba(18, 13, 8, 0.78);
-  padding: 0.85rem 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 253, 244, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 244, 0.085), rgba(255, 253, 244, 0.035)),
+    #211814;
+  padding: 1rem;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 253, 244, 0.08);
 }
 
 .booking-selected-popover-icon {
@@ -2925,7 +2935,6 @@ textarea {
 }
 
 .booking-selected-popover-title {
-  margin-bottom: 0.65rem;
   color: #FFFDF4;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.35rem;
@@ -2937,6 +2946,14 @@ textarea {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.booking-selected-popover-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
   gap: 0.75rem;
 }
 
@@ -2964,7 +2981,7 @@ textarea {
   outline: none;
 }
 
-.booking-selected-popover .booking-summary {
+.booking-details-modal .booking-summary {
   background: rgba(27, 21, 19, 0.44);
 }
 
@@ -2985,25 +3002,18 @@ textarea {
     padding: 0.85rem;
   }
 
-  .booking-selected-popover {
-    position: absolute;
-    right: 0.75rem;
-    bottom: 0.75rem;
-    left: 0.75rem;
-    z-index: 90;
-    align-items: flex-start;
-    gap: 0.35rem;
-    margin-top: 0;
-    padding: 0.8rem 0.9rem;
-    max-height: calc(100% - 1.5rem);
-    overflow-y: auto;
-    border-color: rgba(194, 138, 46, 0.42);
-    background: rgba(24, 18, 14, 0.94);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
-    backdrop-filter: blur(10px);
+  .booking-details-modal-backdrop {
+    align-items: end;
+    padding: 0.75rem;
   }
 
-  .booking-selected-popover p {
+  .booking-details-modal {
+    width: 100%;
+    max-height: min(78vh, 30rem);
+    padding: 0.9rem;
+  }
+
+  .booking-details-modal p {
     line-height: 1.15;
   }
 
