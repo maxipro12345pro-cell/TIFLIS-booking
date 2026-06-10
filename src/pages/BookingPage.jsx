@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, ChevronLeft, Info, MapPin, Phone, UsersRound, X } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { LuxuryReveal } from '../components/LuxuryMotion.jsx';
 import TableMap from '../components/TableMap/TableMap.jsx';
 import TiflisLogo from '../components/TiflisLogo.jsx';
@@ -620,57 +620,67 @@ export default function BookingPage() {
                 }}
                 variant="dark"
               />
-              {selectedTables.length && isDetailsPopoverOpen ? (
-                <div
-                  className="booking-details-modal-backdrop"
-                  role="presentation"
-                  onClick={() => setIsDetailsPopoverOpen(false)}
-                >
-                  <div
-                    className="booking-details-modal"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="booking-details-modal-title"
-                    onClick={(event) => event.stopPropagation()}
+              <AnimatePresence>
+                {selectedTables.length && isDetailsPopoverOpen ? (
+                  <motion.div
+                    className="booking-details-modal-backdrop"
+                    role="presentation"
+                    onClick={() => setIsDetailsPopoverOpen(false)}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
                   >
-                    <div className="booking-selected-popover-heading">
-                      <div className="booking-selected-popover-title-row">
-                        <div className="booking-selected-popover-icon" aria-hidden="true">
-                          <Info className="h-5 w-5" />
+                    <motion.div
+                      className="booking-details-modal"
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="booking-details-modal-title"
+                      onClick={(event) => event.stopPropagation()}
+                      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 18, scale: 0.97 }}
+                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <div className="booking-selected-popover-heading">
+                        <div className="booking-selected-popover-title-row">
+                          <div className="booking-selected-popover-icon" aria-hidden="true">
+                            <Info className="h-5 w-5" />
+                          </div>
+                          <h3 id="booking-details-modal-title" className="booking-selected-popover-title">
+                            {bookingCopy.details}
+                          </h3>
                         </div>
-                        <h3 id="booking-details-modal-title" className="booking-selected-popover-title">
-                          {bookingCopy.details}
-                        </h3>
+                        <button
+                          type="button"
+                          className="booking-selected-popover-close"
+                          onClick={() => setIsDetailsPopoverOpen(false)}
+                          aria-label={copy.hostess?.close ?? 'Close'}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className="booking-selected-popover-close"
-                        onClick={() => setIsDetailsPopoverOpen(false)}
-                        aria-label={copy.hostess?.close ?? 'Close'}
-                      >
-                        <X className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    </div>
-                    <BookingSettingsContent
-                      bookingCopy={bookingCopy}
-                      form={form}
-                      slots={slots}
-                      updateForm={updateForm}
-                      updateGuestBreakdown={updateGuestBreakdown}
-                      selectedZoneLabel={selectedZoneLabel}
-                      selectedTableNumbers={selectedTableNumbers}
-                      guestBreakdown={guestBreakdown}
-                      isBanquetMode={isBanquetMode}
-                      selectedCapacity={selectedCapacity}
-                      confirmByPhone={confirmByPhone}
-                      setConfirmByPhone={setConfirmByPhone}
-                      isSubmitting={isSubmitting}
-                      selectedTablesLength={selectedTables.length}
-                      controlsClassName="booking-modal-controls grid gap-4"
-                    />
-                  </div>
-                </div>
-              ) : null}
+                      <BookingSettingsContent
+                        bookingCopy={bookingCopy}
+                        form={form}
+                        slots={slots}
+                        updateForm={updateForm}
+                        updateGuestBreakdown={updateGuestBreakdown}
+                        selectedZoneLabel={selectedZoneLabel}
+                        selectedTableNumbers={selectedTableNumbers}
+                        guestBreakdown={guestBreakdown}
+                        isBanquetMode={isBanquetMode}
+                        selectedCapacity={selectedCapacity}
+                        confirmByPhone={confirmByPhone}
+                        setConfirmByPhone={setConfirmByPhone}
+                        isSubmitting={isSubmitting}
+                        selectedTablesLength={selectedTables.length}
+                        controlsClassName="booking-modal-controls grid gap-4"
+                      />
+                    </motion.div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </LuxuryReveal>
           </LuxuryReveal>
 
