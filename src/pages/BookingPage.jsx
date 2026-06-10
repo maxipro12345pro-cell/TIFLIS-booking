@@ -178,6 +178,135 @@ function BookingDetailsSummary({
   );
 }
 
+function BookingSettingsContent({
+  bookingCopy,
+  form,
+  slots,
+  updateForm,
+  updateGuestBreakdown,
+  selectedZoneLabel,
+  selectedTableNumbers,
+  guestBreakdown,
+  isBanquetMode,
+  selectedCapacity,
+  confirmByPhone,
+  setConfirmByPhone,
+  isSubmitting,
+  selectedTablesLength,
+  controlsClassName = 'grid gap-4',
+}) {
+  const resetTableSelection = (patch) => updateForm({ ...patch, table: null, tables: [] });
+
+  return (
+    <>
+      <div className={controlsClassName}>
+        <label className="block text-sm font-semibold text-cream">
+          {bookingCopy.date}
+          <div className="booking-field-shell mt-2 flex items-center overflow-hidden rounded-lg">
+            <input
+              type="date"
+              min={todayLocalIso()}
+              value={form.date}
+              onChange={(event) => resetTableSelection({ date: event.target.value })}
+              className="booking-field min-h-12 flex-1 bg-transparent px-5 outline-none"
+            />
+            <CalendarDays className="mr-4 h-5 w-5 text-sage" aria-hidden="true" />
+          </div>
+        </label>
+
+        <TimeStepper
+          bookingCopy={bookingCopy}
+          slots={slots}
+          value={form.time}
+          onChange={(nextTime) => resetTableSelection({ time: nextTime })}
+        />
+
+        <div className="block">
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-cream">
+            <UsersRound className="h-4 w-4 text-sage" aria-hidden="true" />
+            {bookingCopy.guests}
+          </div>
+          <GuestBreakdownFields
+            bookingCopy={bookingCopy}
+            adultsCount={form.adults_count}
+            childrenCount={form.children_count}
+            onChange={updateGuestBreakdown}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <BookingDetailsSummary
+          bookingCopy={bookingCopy}
+          form={form}
+          selectedZoneLabel={selectedZoneLabel}
+          selectedTableNumbers={selectedTableNumbers}
+          guestBreakdown={guestBreakdown}
+          isBanquetMode={isBanquetMode}
+          selectedCapacity={selectedCapacity}
+        />
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <input
+          required
+          placeholder={bookingCopy.namePlaceholder}
+          value={form.name}
+          onChange={(event) => updateForm({ name: event.target.value })}
+          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+        />
+        <input
+          required
+          placeholder="+373"
+          value={form.phone}
+          onChange={(event) => updateForm({ phone: event.target.value })}
+          pattern="^\+?\d[\d\s()\-]{7,}$"
+          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+        />
+        <input
+          type="email"
+          placeholder={bookingCopy.emailPlaceholder}
+          value={form.email}
+          onChange={(event) => updateForm({ email: event.target.value })}
+          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+        />
+        <textarea
+          placeholder={bookingCopy.notesPlaceholder}
+          value={form.notes}
+          onChange={(event) => updateForm({ notes: event.target.value })}
+          className="booking-field min-h-24 w-full rounded-lg px-4 py-3 outline-none"
+        />
+      </div>
+
+      <label className="booking-phone-confirm mt-4 flex items-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-cream/86">
+        <input
+          type="checkbox"
+          checked={confirmByPhone}
+          disabled={isBanquetMode}
+          onChange={(event) => setConfirmByPhone(event.target.checked)}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-[#C28A2E] disabled:cursor-not-allowed"
+        />
+        <span>
+          {bookingCopy.confirmByPhone}
+          {isBanquetMode ? (
+            <small className="mt-1 block text-xs font-medium text-gold/80">
+              {bookingCopy.requiredForBanquet}
+            </small>
+          ) : null}
+        </span>
+      </label>
+
+      <motion.button
+        disabled={isSubmitting || selectedTablesLength === 0}
+        className="booking-primary-button mt-5 w-full disabled:cursor-not-allowed disabled:bg-cream/15 disabled:text-cream/45 disabled:shadow-none"
+        whileTap={{ scale: 0.98 }}
+      >
+        {isSubmitting ? bookingCopy.submitting : bookingCopy.submit}
+      </motion.button>
+    </>
+  );
+}
+
 export default function BookingPage() {
   const navigate = useNavigate();
   const { currentBranch } = useBranch();
@@ -522,14 +651,22 @@ export default function BookingPage() {
                         <X className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
-                    <BookingDetailsSummary
+                    <BookingSettingsContent
                       bookingCopy={bookingCopy}
                       form={form}
+                      slots={slots}
+                      updateForm={updateForm}
+                      updateGuestBreakdown={updateGuestBreakdown}
                       selectedZoneLabel={selectedZoneLabel}
                       selectedTableNumbers={selectedTableNumbers}
                       guestBreakdown={guestBreakdown}
                       isBanquetMode={isBanquetMode}
                       selectedCapacity={selectedCapacity}
+                      confirmByPhone={confirmByPhone}
+                      setConfirmByPhone={setConfirmByPhone}
+                      isSubmitting={isSubmitting}
+                      selectedTablesLength={selectedTables.length}
+                      controlsClassName="booking-modal-controls grid gap-4"
                     />
                   </div>
                 </div>
@@ -539,109 +676,23 @@ export default function BookingPage() {
 
           <LuxuryReveal as="aside" className="booking-side-panel h-fit rounded-xl p-5 shadow-soft lg:sticky lg:top-6" delay={0.16} subtle>
             <h2 className="font-display text-3xl font-semibold leading-none">{bookingCopy.details}</h2>
-            <div className="booking-date-controls booking-date-controls-mobile mt-4 grid gap-4">
-              <label className="block text-sm font-semibold text-cream">
-                {bookingCopy.date}
-                <div className="booking-field-shell mt-2 flex items-center overflow-hidden rounded-lg">
-                  <input
-                    type="date"
-                    min={todayLocalIso()}
-                    value={form.date}
-                    onChange={(event) => updateForm({ date: event.target.value, table: null })}
-                    className="booking-field min-h-12 flex-1 bg-transparent px-5 outline-none"
-                  />
-                  <CalendarDays className="mr-4 h-5 w-5 text-sage" aria-hidden="true" />
-                </div>
-              </label>
-
-              <TimeStepper
-                bookingCopy={bookingCopy}
-                slots={slots}
-                value={form.time}
-                onChange={(nextTime) => updateForm({ time: nextTime, table: null })}
-              />
-
-              <div className="block">
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-cream">
-                  <UsersRound className="h-4 w-4 text-sage" aria-hidden="true" />
-                  {bookingCopy.guests}
-                </div>
-                <GuestBreakdownFields
-                  bookingCopy={bookingCopy}
-                  adultsCount={form.adults_count}
-                  childrenCount={form.children_count}
-                  onChange={updateGuestBreakdown}
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <BookingDetailsSummary
-                bookingCopy={bookingCopy}
-                form={form}
-                selectedZoneLabel={selectedZoneLabel}
-                selectedTableNumbers={selectedTableNumbers}
-                guestBreakdown={guestBreakdown}
-                isBanquetMode={isBanquetMode}
-                selectedCapacity={selectedCapacity}
-              />
-            </div>
-
-            <div className="mt-5 space-y-4">
-              <input
-                required
-                placeholder={bookingCopy.namePlaceholder}
-                value={form.name}
-                onChange={(event) => updateForm({ name: event.target.value })}
-                className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
-              />
-              <input
-                required
-                placeholder="+373"
-                value={form.phone}
-                onChange={(event) => updateForm({ phone: event.target.value })}
-                pattern="^\+?\d[\d\s()\-]{7,}$"
-                className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
-              />
-              <input
-                type="email"
-                placeholder={bookingCopy.emailPlaceholder}
-                value={form.email}
-                onChange={(event) => updateForm({ email: event.target.value })}
-                className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
-              />
-              <textarea
-                placeholder={bookingCopy.notesPlaceholder}
-                value={form.notes}
-                onChange={(event) => updateForm({ notes: event.target.value })}
-                className="booking-field min-h-24 w-full rounded-lg px-4 py-3 outline-none"
-              />
-            </div>
-
-            <label className="booking-phone-confirm mt-4 flex items-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-cream/86">
-              <input
-                type="checkbox"
-                checked={confirmByPhone}
-                disabled={isBanquetMode}
-                onChange={(event) => setConfirmByPhone(event.target.checked)}
-                className="mt-0.5 h-5 w-5 shrink-0 accent-[#C28A2E] disabled:cursor-not-allowed"
-              />
-              <span>
-                {bookingCopy.confirmByPhone}
-                {isBanquetMode ? (
-                  <small className="mt-1 block text-xs font-medium text-gold/80">
-                    {bookingCopy.requiredForBanquet}
-                  </small>
-                ) : null}
-              </span>
-            </label>
-
-            <motion.button
-              disabled={isSubmitting || selectedTables.length === 0}
-              className="booking-primary-button mt-5 w-full disabled:cursor-not-allowed disabled:bg-cream/15 disabled:text-cream/45 disabled:shadow-none"
-              whileTap={{ scale: 0.98 }}
-            >
-              {isSubmitting ? bookingCopy.submitting : bookingCopy.submit}
-            </motion.button>
+            <BookingSettingsContent
+              bookingCopy={bookingCopy}
+              form={form}
+              slots={slots}
+              updateForm={updateForm}
+              updateGuestBreakdown={updateGuestBreakdown}
+              selectedZoneLabel={selectedZoneLabel}
+              selectedTableNumbers={selectedTableNumbers}
+              guestBreakdown={guestBreakdown}
+              isBanquetMode={isBanquetMode}
+              selectedCapacity={selectedCapacity}
+              confirmByPhone={confirmByPhone}
+              setConfirmByPhone={setConfirmByPhone}
+              isSubmitting={isSubmitting}
+              selectedTablesLength={selectedTables.length}
+              controlsClassName="booking-date-controls booking-date-controls-mobile mt-4 grid gap-4"
+            />
           </LuxuryReveal>
         </form>
       </div>

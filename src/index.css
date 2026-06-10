@@ -2903,8 +2903,8 @@ textarea {
 }
 
 .booking-details-modal {
-  width: min(100%, 27rem);
-  max-height: min(82vh, 34rem);
+  width: min(100%, 32rem);
+  max-height: min(88vh, 44rem);
   overflow-y: auto;
   border: 1px solid rgba(194, 138, 46, 0.42);
   border-radius: 1rem;
@@ -2915,6 +2915,13 @@ textarea {
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.58),
     inset 0 1px 0 rgba(255, 253, 244, 0.08);
+}
+
+.booking-modal-controls {
+  border: 1px solid rgba(255, 253, 244, 0.1);
+  border-radius: 0.9rem;
+  background: rgba(27, 21, 19, 0.5);
+  padding: 0.85rem;
 }
 
 .booking-selected-popover-icon {
@@ -3009,7 +3016,7 @@ textarea {
 
   .booking-details-modal {
     width: 100%;
-    max-height: min(78vh, 30rem);
+    max-height: min(86vh, 42rem);
     padding: 0.9rem;
   }
 
