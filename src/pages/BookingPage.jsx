@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, Clock, MapPin, Phone, UsersRound } from 'lucide-react';
+import { CalendarDays, ChevronLeft, Info, MapPin, Phone, UsersRound } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { LuxuryReveal } from '../components/LuxuryMotion.jsx';
@@ -43,36 +43,137 @@ function isValidRequiredPhone(phone) {
   return digits.length >= 11;
 }
 
+function NumberStepper({ label, min, max, value, onChange }) {
+  const numericValue = Number(value);
+  const changeBy = (delta) => {
+    const nextValue = Math.min(max, Math.max(min, numericValue + delta));
+    onChange(String(nextValue));
+  };
+
+  return (
+    <div className="booking-stepper">
+      <span className="booking-stepper-label">{label}</span>
+      <div className="booking-stepper-controls">
+        <button
+          type="button"
+          onClick={() => changeBy(-1)}
+          disabled={numericValue <= min}
+          aria-label={`${label} -1`}
+        >
+          -
+        </button>
+        <input
+          type="number"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="booking-stepper-input"
+        />
+        <button
+          type="button"
+          onClick={() => changeBy(1)}
+          disabled={numericValue >= max}
+          aria-label={`${label} +1`}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TimeStepper({ bookingCopy, slots, value, onChange }) {
+  const currentIndex = Math.max(0, slots.indexOf(value));
+  const hasSlots = slots.length > 0;
+
+  const changeBy = (delta) => {
+    if (!hasSlots) return;
+    const nextIndex = Math.min(slots.length - 1, Math.max(0, currentIndex + delta));
+    onChange(slots[nextIndex]);
+  };
+
+  return (
+    <label className="block text-sm font-semibold text-cream">
+      {bookingCopy.time}
+      <div className="booking-time-stepper mt-2">
+        <button
+          type="button"
+          onClick={() => changeBy(-1)}
+          disabled={!hasSlots || currentIndex <= 0}
+          aria-label={`${bookingCopy.time} -`}
+        >
+          -
+        </button>
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="booking-field min-h-12 flex-1 appearance-none bg-transparent px-4 text-center outline-none"
+        >
+          {slots.map((slot) => (
+            <option key={slot} value={slot}>
+              {slot}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={() => changeBy(1)}
+          disabled={!hasSlots || currentIndex >= slots.length - 1}
+          aria-label={`${bookingCopy.time} +`}
+        >
+          +
+        </button>
+      </div>
+    </label>
+  );
+}
+
 function GuestBreakdownFields({ bookingCopy, adultsCount, childrenCount, onChange }) {
   const totalGuests = Number(adultsCount) + Number(childrenCount);
 
   return (
     <div className="booking-guest-breakdown">
-      <label className="block text-sm font-semibold text-cream">
-        {bookingCopy.adults}
-        <input
-          type="number"
-          min="1"
-          max="12"
-          value={adultsCount}
-          onChange={(event) => onChange({ adultsCount: event.target.value })}
-          className="booking-field mt-2 min-h-12 w-full rounded-lg px-4 outline-none"
-        />
-      </label>
-      <label className="block text-sm font-semibold text-cream">
-        {bookingCopy.children}
-        <input
-          type="number"
-          min="0"
-          max="12"
-          value={childrenCount}
-          onChange={(event) => onChange({ childrenCount: event.target.value })}
-          className="booking-field mt-2 min-h-12 w-full rounded-lg px-4 outline-none"
-        />
-      </label>
+      <NumberStepper
+        label={bookingCopy.adults}
+        min={1}
+        max={12}
+        value={adultsCount}
+        onChange={(nextValue) => onChange({ adultsCount: nextValue })}
+      />
+      <NumberStepper
+        label={bookingCopy.children}
+        min={0}
+        max={12}
+        value={childrenCount}
+        onChange={(nextValue) => onChange({ childrenCount: nextValue })}
+      />
       <div className="booking-guest-total">
         {bookingCopy.totalGuests}: <span>{totalGuests}</span>
       </div>
+    </div>
+  );
+}
+
+function BookingDetailsSummary({
+  bookingCopy,
+  form,
+  selectedZoneLabel,
+  selectedTableNumbers,
+  guestBreakdown,
+  isBanquetMode,
+  selectedCapacity,
+}) {
+  return (
+    <div className="booking-summary rounded-lg p-4 text-sm">
+      <p>{bookingCopy.summaryDate}: {form.date}</p>
+      <p>{bookingCopy.summaryTime}: {form.time}</p>
+      <p>{bookingCopy.summaryZone}: {selectedZoneLabel}</p>
+      <p>{bookingCopy.summaryTable}: {selectedTableNumbers || bookingCopy.chooseOnMap}</p>
+      <p>{bookingCopy.summaryGuests}: {guestBreakdown.guests_count}</p>
+      <p>{bookingCopy.adults}: {guestBreakdown.adults_count}</p>
+      <p>{bookingCopy.children}: {guestBreakdown.children_count}</p>
+      {isBanquetMode ? <p>{bookingCopy.totalCapacity}: {selectedCapacity}</p> : null}
     </div>
   );
 }
@@ -224,6 +325,7 @@ export default function BookingPage() {
   const selectedTables = isBanquetMode ? form.tables : form.table ? [form.table] : [];
   const selectedCapacity = selectedTables.reduce((sum, table) => sum + table.capacity, 0);
   const selectedTableNumbers = selectedTables.map((table) => table.number).join(', ');
+  const selectedZoneLabel = areas.find((area) => area.id === activeArea)?.label ?? copy.areaLabels.main;
 
   const handleTableSelect = (table) => {
     setMergeWarning('');
@@ -309,23 +411,12 @@ export default function BookingPage() {
                 </div>
               </label>
 
-              <label className="block text-sm font-semibold text-cream">
-                {bookingCopy.time}
-                <div className="booking-field-shell mt-2 flex items-center overflow-hidden rounded-lg">
-                  <select
-                    value={form.time}
-                    onChange={(event) => updateForm({ time: event.target.value, table: null })}
-                    className="booking-field min-h-12 flex-1 appearance-none bg-transparent px-5 outline-none"
-                  >
-                    {slots.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                  <Clock className="mr-4 h-5 w-5 text-ink" aria-hidden="true" />
-                </div>
-              </label>
+              <TimeStepper
+                bookingCopy={bookingCopy}
+                slots={slots}
+                value={form.time}
+                onChange={(nextTime) => updateForm({ time: nextTime, table: null })}
+              />
 
               <div className="block">
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-cream">
@@ -388,16 +479,21 @@ export default function BookingPage() {
                 variant="dark"
               />
               {selectedTables.length ? (
-                <div className="booking-selected-popover" role="status">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold">Выбрано</p>
-                    <p className="mt-1 text-lg font-semibold text-cream">
-                      Стол {selectedTableNumbers} · {selectedCapacity} мест
-                    </p>
+                <div className="booking-selected-popover" role="status" aria-live="polite">
+                  <div className="booking-selected-popover-icon" aria-hidden="true">
+                    <Info className="h-5 w-5" />
                   </div>
-                  <div className="text-sm text-cream/72">
-                    <p>{form.date} · {form.time}</p>
-                    <p>{guestBreakdown.guests_count} гостей</p>
+                  <div className="booking-selected-popover-main">
+                    <h3 className="booking-selected-popover-title">{bookingCopy.details}</h3>
+                    <BookingDetailsSummary
+                      bookingCopy={bookingCopy}
+                      form={form}
+                      selectedZoneLabel={selectedZoneLabel}
+                      selectedTableNumbers={selectedTableNumbers}
+                      guestBreakdown={guestBreakdown}
+                      isBanquetMode={isBanquetMode}
+                      selectedCapacity={selectedCapacity}
+                    />
                   </div>
                 </div>
               ) : null}
@@ -421,23 +517,12 @@ export default function BookingPage() {
                 </div>
               </label>
 
-              <label className="block text-sm font-semibold text-cream">
-                {bookingCopy.time}
-                <div className="booking-field-shell mt-2 flex items-center overflow-hidden rounded-lg">
-                  <select
-                    value={form.time}
-                    onChange={(event) => updateForm({ time: event.target.value, table: null })}
-                    className="booking-field min-h-12 flex-1 appearance-none bg-transparent px-5 outline-none"
-                  >
-                    {slots.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                  <Clock className="mr-4 h-5 w-5 text-ink" aria-hidden="true" />
-                </div>
-              </label>
+              <TimeStepper
+                bookingCopy={bookingCopy}
+                slots={slots}
+                value={form.time}
+                onChange={(nextTime) => updateForm({ time: nextTime, table: null })}
+              />
 
               <div className="block">
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-cream">
@@ -452,15 +537,16 @@ export default function BookingPage() {
                 />
               </div>
             </div>
-            <div className="booking-summary mt-4 rounded-lg p-4 text-sm">
-              <p>{bookingCopy.summaryDate}: {form.date}</p>
-              <p>{bookingCopy.summaryTime}: {form.time}</p>
-              <p>{bookingCopy.summaryZone}: {areas.find((area) => area.id === activeArea)?.label ?? copy.areaLabels.main}</p>
-              <p>{bookingCopy.summaryTable}: {selectedTableNumbers || bookingCopy.chooseOnMap}</p>
-              <p>{bookingCopy.summaryGuests}: {guestBreakdown.guests_count}</p>
-              <p>{bookingCopy.adults}: {guestBreakdown.adults_count}</p>
-              <p>{bookingCopy.children}: {guestBreakdown.children_count}</p>
-              {isBanquetMode ? <p>{bookingCopy.totalCapacity}: {selectedCapacity}</p> : null}
+            <div className="mt-4">
+              <BookingDetailsSummary
+                bookingCopy={bookingCopy}
+                form={form}
+                selectedZoneLabel={selectedZoneLabel}
+                selectedTableNumbers={selectedTableNumbers}
+                guestBreakdown={guestBreakdown}
+                isBanquetMode={isBanquetMode}
+                selectedCapacity={selectedCapacity}
+              />
             </div>
 
             <div className="mt-5 space-y-4">

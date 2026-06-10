@@ -470,6 +470,73 @@ textarea {
   gap: 0.75rem;
 }
 
+.booking-stepper {
+  min-width: 0;
+}
+
+.booking-stepper-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #FFFDF4;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.booking-stepper-controls,
+.booking-time-stepper {
+  display: grid;
+  grid-template-columns: 2.65rem minmax(0, 1fr) 2.65rem;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #FFFDF4;
+  color: #2E2926;
+}
+
+.booking-stepper-controls button,
+.booking-time-stepper button {
+  min-height: 3rem;
+  border: 0;
+  background: rgba(46, 41, 38, 0.06);
+  color: #2E2926;
+  font-size: 1.1rem;
+  font-weight: 900;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.booking-stepper-controls button:hover,
+.booking-stepper-controls button:focus-visible,
+.booking-time-stepper button:hover,
+.booking-time-stepper button:focus-visible {
+  background: rgba(185, 133, 46, 0.18);
+  color: #7A1F22;
+  outline: none;
+}
+
+.booking-stepper-controls button:disabled,
+.booking-time-stepper button:disabled {
+  cursor: not-allowed;
+  color: rgba(46, 41, 38, 0.28);
+}
+
+.booking-stepper-input {
+  min-height: 3rem;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #2E2926;
+  text-align: center;
+  font-weight: 900;
+  outline: none;
+}
+
+.booking-time-stepper select {
+  border: 0;
+  font-weight: 900;
+}
+
 .booking-guest-total {
   grid-column: 1 / -1;
   border: 1px solid rgba(185, 133, 46, 0.22);
@@ -2826,8 +2893,7 @@ textarea {
 
 .booking-selected-popover {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
   margin-top: 0.85rem;
   border: 1px solid rgba(194, 138, 46, 0.28);
@@ -2835,6 +2901,36 @@ textarea {
   background: rgba(18, 13, 8, 0.78);
   padding: 0.85rem 1rem;
   box-shadow: inset 0 1px 0 rgba(255, 253, 244, 0.08);
+}
+
+.booking-selected-popover-icon {
+  display: grid;
+  height: 2.35rem;
+  width: 2.35rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(194, 138, 46, 0.38);
+  border-radius: 999px;
+  background: rgba(194, 138, 46, 0.12);
+  color: #C28A2E;
+}
+
+.booking-selected-popover-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.booking-selected-popover-title {
+  margin-bottom: 0.65rem;
+  color: #FFFDF4;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.booking-selected-popover .booking-summary {
+  background: rgba(27, 21, 19, 0.44);
 }
 
 @media (max-width: 599px) {
