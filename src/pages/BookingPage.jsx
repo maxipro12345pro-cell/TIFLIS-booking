@@ -195,6 +195,7 @@ function BookingSettingsContent({
   selectedTablesLength,
   controlsClassName = 'grid gap-4',
   contactClassName = 'mt-5 space-y-4',
+  submitError = '',
   showSummary = true,
   showEmail = true,
   keepSelectionOnChange = false,
@@ -255,16 +256,20 @@ function BookingSettingsContent({
         </div>
       ) : null}
 
+      {submitError ? (
+        <div className="booking-modal-error mt-4 rounded-md border border-wine/50 bg-wine/15 px-4 py-3 text-sm text-cream">
+          {submitError}
+        </div>
+      ) : null}
+
       <div className={contactClassName}>
         <input
-          required
           placeholder={bookingCopy.namePlaceholder}
           value={form.name}
           onChange={(event) => updateForm({ name: event.target.value })}
           className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
         />
         <input
-          required
           placeholder="+373"
           value={form.phone}
           onChange={(event) => updateForm({ phone: event.target.value })}
@@ -378,6 +383,24 @@ export default function BookingPage() {
       .catch(() => setReservedTableIds([]));
   }, [currentBranch, form.date, form.time]);
 
+  useEffect(() => {
+    if (!isDetailsPopoverOpen) return undefined;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
+    };
+  }, [isDetailsPopoverOpen]);
+
   if (!currentBranch) {
     return <Navigate to="/" replace />;
   }
@@ -400,13 +423,21 @@ export default function BookingPage() {
     event.preventDefault();
     setSubmitError('');
 
+    if (!form.name.trim()) {
+      setSubmitError(bookingCopy.nameRequiredError ?? 'Укажите имя для брони.');
+      setIsDetailsPopoverOpen(true);
+      return;
+    }
+
     if (!isValidRequiredPhone(form.phone)) {
       setSubmitError(bookingCopy.phoneRequiredError);
+      setIsDetailsPopoverOpen(true);
       return;
     }
 
     if (isBanquetMode && !confirmByPhone) {
       setSubmitError(bookingCopy.phoneConfirmRequiredError);
+      setIsDetailsPopoverOpen(true);
       return;
     }
 
@@ -425,7 +456,7 @@ export default function BookingPage() {
       const reservation = await createReservation(
         {
           branch_id: currentBranch.id,
-          name: form.name,
+          name: form.name.trim(),
           phone: form.phone,
           email: form.email || null,
           date: form.date,
@@ -547,7 +578,7 @@ export default function BookingPage() {
           </div>
         </LuxuryReveal>
 
-        <form onSubmit={submitReservation} className="booking-layout">
+        <form onSubmit={submitReservation} className="booking-layout" noValidate>
           <LuxuryReveal as="section" className="space-y-6" delay={0.08}>
             <div className="booking-step-surface booking-date-controls booking-date-controls-desktop grid gap-5 p-4 md:p-5 lg:grid-cols-3">
               <label className="block text-sm font-semibold text-cream">
@@ -689,6 +720,7 @@ export default function BookingPage() {
                         selectedTablesLength={selectedTables.length}
                         controlsClassName="booking-modal-controls grid gap-4"
                         contactClassName="booking-modal-contact-row mt-5"
+                        submitError={submitError}
                         showSummary={false}
                         showEmail={false}
                         keepSelectionOnChange
