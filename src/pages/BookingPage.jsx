@@ -197,8 +197,11 @@ function BookingSettingsContent({
   contactClassName = 'mt-5 space-y-4',
   showSummary = true,
   showEmail = true,
+  keepSelectionOnChange = false,
 }) {
-  const resetTableSelection = (patch) => updateForm({ ...patch, table: null, tables: [] });
+  const updateBookingSettings = (patch) => {
+    updateForm(keepSelectionOnChange ? patch : { ...patch, table: null, tables: [] });
+  };
 
   return (
     <>
@@ -210,7 +213,7 @@ function BookingSettingsContent({
               type="date"
               min={todayLocalIso()}
               value={form.date}
-              onChange={(event) => resetTableSelection({ date: event.target.value })}
+              onChange={(event) => updateBookingSettings({ date: event.target.value })}
               className="booking-field min-h-12 flex-1 bg-transparent px-5 outline-none"
             />
             <CalendarDays className="mr-4 h-5 w-5 text-sage" aria-hidden="true" />
@@ -221,7 +224,7 @@ function BookingSettingsContent({
           bookingCopy={bookingCopy}
           slots={slots}
           value={form.time}
-          onChange={(nextTime) => resetTableSelection({ time: nextTime })}
+          onChange={(nextTime) => updateBookingSettings({ time: nextTime })}
         />
 
         <div className="block">
@@ -233,7 +236,7 @@ function BookingSettingsContent({
             bookingCopy={bookingCopy}
             adultsCount={form.adults_count}
             childrenCount={form.children_count}
-            onChange={updateGuestBreakdown}
+            onChange={(patch) => updateGuestBreakdown(patch, { keepSelection: keepSelectionOnChange })}
           />
         </div>
       </div>
@@ -380,14 +383,16 @@ export default function BookingPage() {
   }
 
   const updateForm = (patch) => setForm((current) => ({ ...current, ...patch }));
-  const updateGuestBreakdown = (patch) => {
+  const updateGuestBreakdown = (patch, options = {}) => {
     setForm((current) => {
       const nextBreakdown = normalizeGuestBreakdown({
         adultsCount: patch.adultsCount ?? current.adults_count,
         childrenCount: patch.childrenCount ?? current.children_count,
       });
 
-      return { ...current, ...nextBreakdown, table: null, tables: [] };
+      return options.keepSelection
+        ? { ...current, ...nextBreakdown }
+        : { ...current, ...nextBreakdown, table: null, tables: [] };
     });
   };
 
@@ -686,6 +691,7 @@ export default function BookingPage() {
                         contactClassName="booking-modal-contact-row mt-5"
                         showSummary={false}
                         showEmail={false}
+                        keepSelectionOnChange
                       />
                     </motion.div>
                   </motion.div>
