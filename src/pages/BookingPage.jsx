@@ -194,6 +194,9 @@ function BookingSettingsContent({
   isSubmitting,
   selectedTablesLength,
   controlsClassName = 'grid gap-4',
+  contactClassName = 'mt-5 space-y-4',
+  showSummary = true,
+  showEmail = true,
 }) {
   const resetTableSelection = (patch) => updateForm({ ...patch, table: null, tables: [] });
 
@@ -235,19 +238,21 @@ function BookingSettingsContent({
         </div>
       </div>
 
-      <div className="mt-4">
-        <BookingDetailsSummary
-          bookingCopy={bookingCopy}
-          form={form}
-          selectedZoneLabel={selectedZoneLabel}
-          selectedTableNumbers={selectedTableNumbers}
-          guestBreakdown={guestBreakdown}
-          isBanquetMode={isBanquetMode}
-          selectedCapacity={selectedCapacity}
-        />
-      </div>
+      {showSummary ? (
+        <div className="mt-4">
+          <BookingDetailsSummary
+            bookingCopy={bookingCopy}
+            form={form}
+            selectedZoneLabel={selectedZoneLabel}
+            selectedTableNumbers={selectedTableNumbers}
+            guestBreakdown={guestBreakdown}
+            isBanquetMode={isBanquetMode}
+            selectedCapacity={selectedCapacity}
+          />
+        </div>
+      ) : null}
 
-      <div className="mt-5 space-y-4">
+      <div className={contactClassName}>
         <input
           required
           placeholder={bookingCopy.namePlaceholder}
@@ -263,13 +268,15 @@ function BookingSettingsContent({
           pattern="^\+?\d[\d\s()\-]{7,}$"
           className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
         />
-        <input
-          type="email"
-          placeholder={bookingCopy.emailPlaceholder}
-          value={form.email}
-          onChange={(event) => updateForm({ email: event.target.value })}
-          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
-        />
+        {showEmail ? (
+          <input
+            type="email"
+            placeholder={bookingCopy.emailPlaceholder}
+            value={form.email}
+            onChange={(event) => updateForm({ email: event.target.value })}
+            className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+          />
+        ) : null}
         <textarea
           placeholder={bookingCopy.notesPlaceholder}
           value={form.notes}
@@ -676,6 +683,9 @@ export default function BookingPage() {
                         isSubmitting={isSubmitting}
                         selectedTablesLength={selectedTables.length}
                         controlsClassName="booking-modal-controls grid gap-4"
+                        contactClassName="booking-modal-contact-row mt-5"
+                        showSummary={false}
+                        showEmail={false}
                       />
                     </motion.div>
                   </motion.div>

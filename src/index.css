@@ -2953,6 +2953,16 @@ textarea {
   padding: 0.85rem;
 }
 
+.booking-modal-contact-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.booking-modal-contact-row textarea {
+  grid-column: 1 / -1;
+}
+
 .booking-selected-popover-icon {
   display: grid;
   height: 2.35rem;
@@ -3051,6 +3061,10 @@ textarea {
 
   .booking-details-modal p {
     line-height: 1.15;
+  }
+
+  .booking-modal-contact-row {
+    gap: 0.65rem;
   }
 
   .hostess-map-modal {
