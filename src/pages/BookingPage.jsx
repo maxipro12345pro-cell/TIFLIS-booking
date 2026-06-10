@@ -467,7 +467,7 @@ export default function BookingPage() {
         return;
       }
 
-      setIsDetailsPopoverOpen(false);
+      setIsDetailsPopoverOpen(true);
       updateForm({ table, tables: [] });
       return;
     }
@@ -484,7 +484,7 @@ export default function BookingPage() {
       return;
     }
 
-    setIsDetailsPopoverOpen(false);
+    setIsDetailsPopoverOpen(true);
     updateForm({
       table: null,
       tables: [...form.tables, table],
@@ -620,7 +620,7 @@ export default function BookingPage() {
                 }}
                 variant="dark"
               />
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {selectedTables.length && isDetailsPopoverOpen ? (
                   <motion.div
                     className="booking-details-modal-backdrop"
@@ -629,7 +629,7 @@ export default function BookingPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
+                    transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
                   >
                     <motion.div
                       className="booking-details-modal"
@@ -640,7 +640,7 @@ export default function BookingPage() {
                       initial={{ opacity: 0, y: 24, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 18, scale: 0.97 }}
-                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <div className="booking-selected-popover-heading">
                         <div className="booking-selected-popover-title-row">
