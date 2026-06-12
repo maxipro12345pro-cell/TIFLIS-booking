@@ -163,19 +163,19 @@ const GAZEBO_ZONES = [
 const GAZEBO_RESTAURANT_ZONE = {
   id: 'restaurant',
   label: 'РЕСТОРАН',
-  x: 420,
-  y: 555,
-  w: 510,
-  h: 290,
+  x: 406,
+  y: 583,
+  w: 560,
+  h: 236,
 };
 
 const GAZEBO_HOOKAH_ZONE = {
   id: 'hookah-transition',
   label: 'ПЕРЕХОД В КАЛЬЯННУЮ',
-  x: 22,
-  y: 350,
-  w: 115,
-  h: 80,
+  x: 38,
+  y: 358,
+  w: 205,
+  h: 158,
 };
 
 const GAZEBO_DECORATIVE_WALLS = [
@@ -506,9 +506,9 @@ function TableButton({
       }}
       whileHover={disabled ? undefined : { y: -2, scale: 1.025 }}
       whileTap={disabled ? undefined : { scale: 0.96 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
       className={[
-        'booking-table-button relative z-10 grid min-h-11 min-w-11 shrink-0 touch-manipulation place-items-center rounded-[0.8rem] border text-center text-xs font-bold transition duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1513] disabled:hover:translate-y-0',
+        'booking-table-button relative z-10 grid min-h-11 min-w-11 shrink-0 touch-manipulation place-items-center rounded-[0.8rem] border text-center text-xs font-bold transition duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1513] disabled:hover:translate-y-0',
         stateClasses[status],
         canInspectDisabled ? 'booking-table-inspectable' : '',
         className,

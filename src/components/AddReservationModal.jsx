@@ -196,8 +196,9 @@ export default function AddReservationModal({ branch, onClose, onSaved }) {
             />
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <input className="hostess-modal-input" type="date" required value={form.date} onChange={(event) => updateForm({ date: event.target.value })} />
-              <input className="hostess-modal-input" type="time" required value={form.time} onChange={(event) => updateForm({ time: event.target.value })} />
+              <input className="hostess-modal-input" type="time" max="22:00" required value={form.time} onChange={(event) => updateForm({ time: event.target.value })} />
             </div>
+            <p className="booking-kitchen-note booking-kitchen-note-light">Кухня закрывается в 22:00</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <label className="text-xs font-bold uppercase tracking-[0.12em] text-ink/55">
                 Взрослые

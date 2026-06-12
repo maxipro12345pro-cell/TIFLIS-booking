@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, ChevronLeft, Info, MapPin, Phone, UsersRound, X } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
@@ -15,24 +15,28 @@ import { createReservation, getReservedTableIds } from '../lib/reservations.js';
 
 const RYSCANOVKA_AREA_IDS = ['gazebo', 'hookah', 'restaurant'];
 const CENTER_AREA_IDS = ['main', 'terrace'];
+const MAX_BOOKING_TIME = '22:00';
+const MODAL_OPEN_DELAY_MS = 520;
+
+function timeToMinutes(value) {
+  const [hours = 0, minutes = 0] = value.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function formatSlot(minutes) {
+  const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
+  const mins = (minutes % 60).toString().padStart(2, '0');
+  return hours + ':' + mins;
+}
 
 function buildSlots(hoursRange) {
   const [start = '11:00', end = '23:00'] = (hoursRange ?? '11:00-23:00').split('-');
-  const [startHour, startMinute] = start.split(':').map(Number);
-  const [endHour, endMinute] = end.split(':').map(Number);
+  const startMinutes = timeToMinutes(start);
+  const endMinutes = Math.min(timeToMinutes(end), timeToMinutes(MAX_BOOKING_TIME));
   const slots = [];
-  const cursor = new Date();
-  cursor.setHours(startHour, startMinute, 0, 0);
-  const finish = new Date();
-  finish.setHours(endHour, endMinute, 0, 0);
 
-  if (finish <= cursor) {
-    finish.setDate(finish.getDate() + 1);
-  }
-
-  while (cursor < finish) {
-    slots.push(cursor.toTimeString().slice(0, 5));
-    cursor.setMinutes(cursor.getMinutes() + 30);
+  for (let minutes = startMinutes; minutes <= endMinutes; minutes += 30) {
+    slots.push(formatSlot(minutes));
   }
 
   return slots;
@@ -125,6 +129,7 @@ function TimeStepper({ bookingCopy, slots, value, onChange }) {
           +
         </button>
       </div>
+      <p className="booking-kitchen-note">{bookingCopy.kitchenCloseNote}</p>
     </label>
   );
 }
@@ -196,6 +201,8 @@ function BookingSettingsContent({
   controlsClassName = 'grid gap-4',
   contactClassName = 'mt-5 space-y-4',
   submitError = '',
+  submitErrorField = '',
+  clearSubmitError = () => {},
   showSummary = true,
   showEmail = true,
   keepSelectionOnChange = false,
@@ -203,6 +210,7 @@ function BookingSettingsContent({
   const updateBookingSettings = (patch) => {
     updateForm(keepSelectionOnChange ? patch : { ...patch, table: null, tables: [] });
   };
+  const fieldErrorClass = (field) => (submitErrorField === field ? ' booking-field-error' : '');
 
   return (
     <>
@@ -266,15 +274,21 @@ function BookingSettingsContent({
         <input
           placeholder={bookingCopy.namePlaceholder}
           value={form.name}
-          onChange={(event) => updateForm({ name: event.target.value })}
-          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+          onChange={(event) => {
+            clearSubmitError('name');
+            updateForm({ name: event.target.value });
+          }}
+          className={`booking-field min-h-11 w-full rounded-lg px-4 outline-none${fieldErrorClass('name')}`}
         />
         <input
           placeholder="+373"
           value={form.phone}
-          onChange={(event) => updateForm({ phone: event.target.value })}
+          onChange={(event) => {
+            clearSubmitError('phone');
+            updateForm({ phone: event.target.value });
+          }}
           pattern="^\+?\d[\d\s()\-]{7,}$"
-          className="booking-field min-h-11 w-full rounded-lg px-4 outline-none"
+          className={`booking-field min-h-11 w-full rounded-lg px-4 outline-none${fieldErrorClass('phone')}`}
         />
         {showEmail ? (
           <input
@@ -346,8 +360,10 @@ export default function BookingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [submitErrorField, setSubmitErrorField] = useState('');
   const [reservedTableIds, setReservedTableIds] = useState([]);
   const [isDetailsPopoverOpen, setIsDetailsPopoverOpen] = useState(false);
+  const detailsOpenTimerRef = useRef(null);
 
   const slots = useMemo(() => {
     if (!currentBranch) return [];
@@ -369,6 +385,18 @@ export default function BookingPage() {
   }, [currentBranch]);
 
   useEffect(() => {
+    if (!slots.length) return;
+
+    if (!slots.includes(form.time)) {
+      setForm((current) => (
+        slots.includes(current.time)
+          ? current
+          : { ...current, time: slots[slots.length - 1], table: null, tables: [] }
+      ));
+    }
+  }, [form.time, slots]);
+
+  useEffect(() => {
     if (!currentBranch || !form.date || !form.time) {
       setReservedTableIds([]);
       return;
@@ -382,6 +410,12 @@ export default function BookingPage() {
       .then(setReservedTableIds)
       .catch(() => setReservedTableIds([]));
   }, [currentBranch, form.date, form.time]);
+
+  useEffect(() => () => {
+    if (detailsOpenTimerRef.current) {
+      globalThis.clearTimeout(detailsOpenTimerRef.current);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isDetailsPopoverOpen) return undefined;
@@ -406,6 +440,27 @@ export default function BookingPage() {
   }
 
   const updateForm = (patch) => setForm((current) => ({ ...current, ...patch }));
+  const clearSubmitError = (field) => {
+    if (!field || submitErrorField === field) {
+      setSubmitError('');
+      setSubmitErrorField('');
+    }
+  };
+  const openDetailsPopover = (delay = 0) => {
+    if (detailsOpenTimerRef.current) {
+      globalThis.clearTimeout(detailsOpenTimerRef.current);
+    }
+
+    if (!delay) {
+      setIsDetailsPopoverOpen(true);
+      return;
+    }
+
+    detailsOpenTimerRef.current = globalThis.setTimeout(() => {
+      setIsDetailsPopoverOpen(true);
+      detailsOpenTimerRef.current = null;
+    }, delay);
+  };
   const updateGuestBreakdown = (patch, options = {}) => {
     setForm((current) => {
       const nextBreakdown = normalizeGuestBreakdown({
@@ -422,21 +477,25 @@ export default function BookingPage() {
   const submitReservation = async (event) => {
     event.preventDefault();
     setSubmitError('');
+    setSubmitErrorField('');
 
     if (!form.name.trim()) {
       setSubmitError(bookingCopy.nameRequiredError ?? 'Укажите имя для брони.');
+      setSubmitErrorField('name');
       setIsDetailsPopoverOpen(true);
       return;
     }
 
     if (!isValidRequiredPhone(form.phone)) {
       setSubmitError(bookingCopy.phoneRequiredError);
+      setSubmitErrorField('phone');
       setIsDetailsPopoverOpen(true);
       return;
     }
 
     if (isBanquetMode && !confirmByPhone) {
       setSubmitError(bookingCopy.phoneConfirmRequiredError);
+      setSubmitErrorField('');
       setIsDetailsPopoverOpen(true);
       return;
     }
@@ -487,6 +546,7 @@ export default function BookingPage() {
       });
     } catch (error) {
       setSubmitError(error.message ?? bookingCopy.createError);
+      setSubmitErrorField('');
     } finally {
       setIsSubmitting(false);
     }
@@ -506,19 +566,19 @@ export default function BookingPage() {
 
     if (!isBanquetMode) {
       if (form.table?.id === table.id) {
-        setIsDetailsPopoverOpen(true);
+        openDetailsPopover();
         return;
       }
 
-      setIsDetailsPopoverOpen(true);
       updateForm({ table, tables: [] });
+      openDetailsPopover(MODAL_OPEN_DELAY_MS);
       return;
     }
 
     const alreadySelected = form.tables.some((item) => item.id === table.id);
 
     if (alreadySelected) {
-      setIsDetailsPopoverOpen(true);
+      openDetailsPopover();
       return;
     }
 
@@ -527,11 +587,11 @@ export default function BookingPage() {
       return;
     }
 
-    setIsDetailsPopoverOpen(true);
     updateForm({
       table: null,
       tables: [...form.tables, table],
     });
+    openDetailsPopover(MODAL_OPEN_DELAY_MS);
   };
 
   return (
@@ -672,7 +732,7 @@ export default function BookingPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
+                    transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
                   >
                     <motion.div
                       className="booking-details-modal"
@@ -683,7 +743,7 @@ export default function BookingPage() {
                       initial={{ opacity: 0, y: 24, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 18, scale: 0.97 }}
-                      transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <div className="booking-selected-popover-heading">
                         <div className="booking-selected-popover-title-row">
@@ -721,6 +781,8 @@ export default function BookingPage() {
                         controlsClassName="booking-modal-controls grid gap-4"
                         contactClassName="booking-modal-contact-row mt-5"
                         submitError={submitError}
+                        submitErrorField={submitErrorField}
+                        clearSubmitError={clearSubmitError}
                         showSummary={false}
                         showEmail={false}
                         keepSelectionOnChange
@@ -750,6 +812,8 @@ export default function BookingPage() {
               isSubmitting={isSubmitting}
               selectedTablesLength={selectedTables.length}
               controlsClassName="booking-date-controls booking-date-controls-mobile mt-4 grid gap-4"
+              submitErrorField={submitErrorField}
+              clearSubmitError={clearSubmitError}
             />
           </LuxuryReveal>
         </form>

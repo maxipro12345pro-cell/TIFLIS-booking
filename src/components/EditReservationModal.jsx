@@ -81,7 +81,8 @@ export default function EditReservationModal({ reservation, branch, onClose }) {
             <input className="hostess-modal-input" defaultValue={reservation.name} aria-label="Имя" />
             <input className="hostess-modal-input" defaultValue={reservation.phone} aria-label="Телефон" />
             <input className="hostess-modal-input" defaultValue={reservation.date} type="date" aria-label="Дата" />
-            <input className="hostess-modal-input" defaultValue={reservation.time} type="time" aria-label="Время" />
+            <input className="hostess-modal-input" defaultValue={reservation.time} type="time" max="22:00" aria-label="Время" />
+            <p className="booking-kitchen-note booking-kitchen-note-light sm:col-span-2 lg:col-span-1 xl:col-span-2">Кухня закрывается в 22:00</p>
             <select className="hostess-modal-input" defaultValue={reservation.status} aria-label="Статус">
               <option value="pending">Ожидает</option>
               <option value="confirmed">Подтверждено</option>

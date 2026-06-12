@@ -471,6 +471,25 @@ textarea {
     0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
+.booking-field-error {
+  box-shadow:
+    0 0 0 2px rgba(190, 36, 45, 0.88),
+    0 12px 30px rgba(122, 31, 34, 0.2) !important;
+}
+
+.booking-kitchen-note {
+  margin-top: 0.45rem;
+  color: #D7A237;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.booking-kitchen-note-light {
+  margin-top: -0.25rem;
+  color: #A86D12;
+}
+
 .booking-side-panel {
   border: 1px solid rgba(255, 253, 244, 0.14);
   background:
@@ -1179,6 +1198,14 @@ textarea {
   background: rgba(185, 133, 46, 0.035);
   box-shadow: inset 0 0 20px rgba(185, 133, 46, 0.08);
   transform: none;
+}
+
+.booking-gazebo-reference-map .booking-gazebo-action-restaurant {
+  border-radius: 0.7rem;
+}
+
+.booking-gazebo-reference-map .booking-gazebo-action-hookah-transition {
+  border-radius: 0.75rem;
 }
 
 .map-bg-layer,
@@ -2192,6 +2219,8 @@ textarea {
 }
 
 .confirmation-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid rgba(46, 41, 38, 0.1);
   border-radius: 1.25rem;
@@ -2200,13 +2229,19 @@ textarea {
 
 .confirmation-row {
   display: grid;
-  gap: 0.5rem;
+  align-content: start;
+  gap: 0.45rem;
+  min-height: 6.25rem;
   border-bottom: 1px solid rgba(46, 41, 38, 0.09);
   padding: 0.95rem 1rem;
   font-size: 0.95rem;
 }
 
-.confirmation-row:last-child {
+.confirmation-row:nth-child(odd) {
+  border-right: 1px solid rgba(46, 41, 38, 0.09);
+}
+
+.confirmation-row:nth-last-child(-n + 2) {
   border-bottom: 0;
 }
 
@@ -2870,9 +2905,10 @@ textarea {
   }
 
   .confirmation-row {
+    min-height: 5.35rem;
     gap: 0.35rem;
-    padding: 0.8rem;
-    font-size: 0.88rem;
+    padding: 0.7rem;
+    font-size: 0.84rem;
   }
 
   .confirmation-contact {
