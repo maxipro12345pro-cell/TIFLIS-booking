@@ -223,6 +223,10 @@ export const translations = {
       hall: 'Зал',
       bar: 'бар',
       entrance: 'вход',
+      centerMapSoonEyebrow: 'Филиал Центр',
+      centerMapSoonTitle: 'Карта зала скоро появится',
+      centerMapSoonText: 'Мы уже готовим карту центра. А пока можете присоединиться к нашему теплому месту на Рышкановке или оформить бронь по телефону.',
+      centerMapRyscanovkaButton: 'В Рышкановку',
     },
     confirmation: {
       fallbackTable: 'назначит хостес',
@@ -351,6 +355,10 @@ export const translations = {
       hall: 'Hall',
       bar: 'bar',
       entrance: 'entrance',
+      centerMapSoonEyebrow: 'Center branch',
+      centerMapSoonTitle: 'The floor map is coming soon',
+      centerMapSoonText: 'We are preparing the Center floor map. For now, you can join our warm place in Ryscanovka or book by phone.',
+      centerMapRyscanovkaButton: 'Go to Ryscanovka',
     },
     confirmation: {
       fallbackTable: 'assigned by hostess',
@@ -479,6 +487,10 @@ export const translations = {
       hall: 'Sala',
       bar: 'bar',
       entrance: 'intrare',
+      centerMapSoonEyebrow: 'Filiala Centru',
+      centerMapSoonTitle: 'Harta salii va aparea in curand',
+      centerMapSoonText: 'Pregatim harta pentru Centru. Pana atunci, te poti alatura locului nostru cald din Riscani sau poti rezerva la telefon.',
+      centerMapRyscanovkaButton: 'La Riscani',
     },
     confirmation: {
       fallbackTable: 'alocata de hostess',
@@ -607,6 +619,10 @@ export const translations = {
       hall: 'დარბაზი',
       bar: 'ბარი',
       entrance: 'შესასვლელი',
+      centerMapSoonEyebrow: 'ცენტრის ფილიალი',
+      centerMapSoonTitle: 'დარბაზის რუკა მალე დაემატება',
+      centerMapSoonText: 'ჩვენ ვამზადებთ ცენტრის რუკას. მანამდე შეგიძლიათ შემოგვიერთდეთ რიშკანოვკას თბილ გარემოში ან დაჯავშნოთ ტელეფონით.',
+      centerMapRyscanovkaButton: 'რიშკანოვკა',
     },
     confirmation: {
       fallbackTable: 'ჰოსტესი დანიშნავს',

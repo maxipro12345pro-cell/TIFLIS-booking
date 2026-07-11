@@ -6,6 +6,7 @@ import {
   Flame,
   Info,
   Minus,
+  Phone,
   Move,
   Plus,
   RotateCcw,
@@ -15,7 +16,9 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { centerTables } from './TableMapCenter.jsx';
 import { ryscanovkaTables } from './TableMapRyscanovka.jsx';
+import { useBranch } from '../../hooks/useBranch.js';
 import { useTranslation } from '../../hooks/useTranslation.js';
+import { buildPhoneHref } from '../../lib/contactLinks.js';
 
 const AREA_LABELS = {
   gazebo: 'Беседки',
@@ -1307,32 +1310,28 @@ function RestaurantMap({ tables, tableProps, mapCopy }) {
   );
 }
 
-function CenterMap({ tables, tableProps, activeArea }) {
-  const filtered = tables.filter((table) => {
-    if (activeArea === 'terrace') return table.zone === 'terrace';
-    return table.zone !== 'terrace';
-  });
+function CenterMapNotice({ branch, mapCopy, onJoinRyscanovka }) {
+  const phone = branch?.phone ?? '+373 (68) 995 559';
 
   return (
-    <div className="booking-floor-map relative mx-auto h-[420px] min-w-[720px] max-w-[900px] rounded-2xl border border-cream/15">
-      <div className="absolute inset-8 border border-cream/20" />
-      {filtered.map((table) => (
-        <div
-          key={table.id}
-          className="absolute"
-          style={{
-            left: `${table.x}%`,
-            top: `${table.y}%`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          <TableButton
-            table={table}
-            {...tableProps}
-            className={table.capacity >= 6 || table.number === 'VIP' ? 'h-16 w-20' : 'h-16 w-16'}
-          />
+    <div className="booking-center-map-notice">
+      <div className="booking-center-map-notice-inner">
+        <span className="booking-center-map-eyebrow">{mapCopy.centerMapSoonEyebrow}</span>
+        <h2 className="font-display text-3xl font-semibold leading-none text-cream sm:text-4xl">
+          {mapCopy.centerMapSoonTitle}
+        </h2>
+        <p>{mapCopy.centerMapSoonText}</p>
+        <div className="booking-center-map-actions">
+          <button type="button" className="booking-center-map-ryscanovka" onClick={onJoinRyscanovka}>
+            <Trees className="h-4 w-4" aria-hidden="true" />
+            {mapCopy.centerMapRyscanovkaButton}
+          </button>
+          <a href={buildPhoneHref(phone)} className="booking-center-map-phone">
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            {phone}
+          </a>
         </div>
-      ))}
+      </div>
     </div>
   );
 }
@@ -1350,6 +1349,7 @@ export default function TableMap({
   activeArea,
   onAreaChange = () => {},
 }) {
+  const { branches, selectBranch } = useBranch();
   const { copy } = useTranslation();
   const prefersReducedMotion = useReducedMotion();
   const mapCopy = copy.tableMap;
@@ -1387,6 +1387,22 @@ export default function TableMap({
     'booking-map-scroll pb-3',
     usesResponsiveMap ? 'booking-map-scroll-fit' : 'overflow-x-auto',
   ].join(' ');
+
+  if (!isRyscanovka) {
+    const ryscanovkaBranch = branches.find((item) => item.slug === 'ryscanovka');
+
+    return (
+      <section className="booking-map-panel overflow-hidden rounded-2xl p-4 sm:p-5">
+        <CenterMapNotice
+          branch={branch}
+          mapCopy={mapCopy}
+          onJoinRyscanovka={() => {
+            if (ryscanovkaBranch) selectBranch(ryscanovkaBranch);
+          }}
+        />
+      </section>
+    );
+  }
 
   return (
     <section
@@ -1431,7 +1447,6 @@ export default function TableMap({
         {isRyscanovka && area === 'restaurant' ? (
           <RestaurantMap tables={visibleTables} tableProps={tableProps} mapCopy={mapCopy} />
         ) : null}
-        {!isRyscanovka ? <CenterMap tables={tables} tableProps={tableProps} activeArea={area} /> : null}
       </div>
         </motion.div>
       </AnimatePresence>
