@@ -150,6 +150,8 @@ export const translations = {
       intro:
         'У каждого филиала своя карта зала и свои столы. После выбора филиала бронирование сохранит этот контекст до подтверждения.',
       chooseBranch: 'Выбрать филиал',
+      centerInactiveLabel: 'Скоро доступно',
+      centerInactiveText: 'Онлайн-бронь в центре пока неактивна. Карта скоро появится, а сейчас ждем вас на Рышкановке или по телефону.',
       loadError: 'Не удалось загрузить филиалы.',
       features: [
         { label: 'Грузинская кухня', detail: 'хинкали, хачапури, специи' },
@@ -282,6 +284,8 @@ export const translations = {
       intro:
         'Each branch has its own floor map and tables. After choosing a branch, the booking keeps that context until confirmation.',
       chooseBranch: 'Choose branch',
+      centerInactiveLabel: 'Coming soon',
+      centerInactiveText: 'Online booking in the Center is not active yet. The map is coming soon; for now, we are waiting for you in Ryscanovka or by phone.',
       loadError: 'Could not load branches.',
       features: [
         { label: 'Georgian cuisine', detail: 'khinkali, khachapuri, spices' },
@@ -414,6 +418,8 @@ export const translations = {
       intro:
         'Fiecare filiala are propria harta a salii si propriile mese. Dupa alegerea filialei, rezervarea pastreaza acest context pana la confirmare.',
       chooseBranch: 'Alege filiala',
+      centerInactiveLabel: 'In curand',
+      centerInactiveText: 'Rezervarea online in Centru nu este activa inca. Harta va aparea in curand; momentan te asteptam la Riscani sau la telefon.',
       loadError: 'Nu am putut incarca filialele.',
       features: [
         { label: 'Bucatarie georgiana', detail: 'khinkali, khachapuri, condimente' },
@@ -546,6 +552,8 @@ export const translations = {
       intro:
         'თითოეულ ფილიალს აქვს საკუთარი დარბაზის რუკა და მაგიდები. ფილიალის არჩევის შემდეგ ჯავშანი ამ კონტექსტს დადასტურებამდე ინარჩუნებს.',
       chooseBranch: 'ფილიალის არჩევა',
+      centerInactiveLabel: 'მალე დაემატება',
+      centerInactiveText: 'ცენტრში ონლაინ ჯავშანი ჯერ არ არის აქტიური. რუკა მალე დაემატება; მანამდე გელოდებით რიშკანოვკაზე ან ტელეფონით.',
       loadError: 'ფილიალების ჩატვირთვა ვერ მოხერხდა.',
       features: [
         { label: 'ქართული სამზარეულო', detail: 'ხინკალი, ხაჭაპური, სანელებლები' },

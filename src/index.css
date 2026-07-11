@@ -330,6 +330,17 @@ textarea {
   transform: translateY(-3px);
 }
 
+.branch-card-inactive {
+  border-color: rgba(210, 154, 52, 0.24);
+  opacity: 0.86;
+}
+
+.branch-card-inactive:hover {
+  border-color: rgba(210, 154, 52, 0.24);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.24);
+  transform: none;
+}
+
 .branch-card-core {
   display: flex;
   height: 100%;
@@ -355,6 +366,56 @@ textarea {
 .branch-card-media-button:focus-visible {
   outline: 2px solid rgba(210, 154, 52, 0.72);
   outline-offset: 3px;
+}
+
+.branch-card-inactive .branch-card-media-button {
+  cursor: default;
+}
+
+.branch-card-inactive .branch-card-image {
+  filter: saturate(0.82) brightness(0.8);
+}
+
+.branch-card-inactive-badge {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(210, 154, 52, 0.42);
+  border-radius: 999px;
+  background: rgba(18, 13, 8, 0.72);
+  padding: 0.55rem 0.8rem;
+  color: #FFFDF4;
+  font-size: 0.78rem;
+  font-weight: 900;
+  backdrop-filter: blur(12px);
+}
+
+.branch-card-inactive-note {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(210, 154, 52, 0.24);
+  border-radius: 0.9rem;
+  background: rgba(210, 154, 52, 0.1);
+  padding: 0.9rem;
+  color: rgba(255, 253, 244, 0.78);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.branch-card-disabled-button,
+.branch-card-disabled-button:hover {
+  cursor: not-allowed;
+  border-color: rgba(255, 253, 244, 0.1);
+  background: rgba(255, 253, 244, 0.12);
+  color: rgba(255, 253, 244, 0.58);
+  box-shadow: none;
+  transform: none;
 }
 
 .branch-card-detail {
@@ -403,6 +464,10 @@ textarea {
   max-width: 92rem;
   margin: 0 auto;
   padding: 1.25rem 1rem 2rem;
+}
+
+.booking-center-only {
+  margin-top: 1.5rem;
 }
 
 .booking-guest-header {

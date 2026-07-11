@@ -560,6 +560,7 @@ export default function BookingPage() {
   const selectedCapacity = selectedTables.reduce((sum, table) => sum + table.capacity, 0);
   const selectedTableNumbers = selectedTables.map((table) => table.number).join(', ');
   const selectedZoneLabel = areas.find((area) => area.id === activeArea)?.label ?? copy.areaLabels.main;
+  const isCenterBranch = currentBranch.slug === 'center';
 
   const handleTableSelect = (table) => {
     setMergeWarning('');
@@ -638,7 +639,12 @@ export default function BookingPage() {
           </div>
         </LuxuryReveal>
 
-        <form onSubmit={submitReservation} className="booking-layout" noValidate>
+        {isCenterBranch ? (
+          <LuxuryReveal as="section" className="booking-center-only" delay={0.08}>
+            <TableMap branch={currentBranch} variant="dark" />
+          </LuxuryReveal>
+        ) : (
+          <form onSubmit={submitReservation} className="booking-layout" noValidate>
           <LuxuryReveal as="section" className="space-y-6" delay={0.08}>
             <div className="booking-step-surface booking-date-controls booking-date-controls-desktop grid gap-5 p-4 md:p-5 lg:grid-cols-3">
               <label className="block text-sm font-semibold text-cream">
@@ -816,7 +822,8 @@ export default function BookingPage() {
               clearSubmitError={clearSubmitError}
             />
           </LuxuryReveal>
-        </form>
+          </form>
+        )}
       </div>
     </main>
   );

@@ -19,6 +19,8 @@ export default function BranchSelectPage() {
   const pageCopy = copy.branchSelect;
 
   const handleSelectBranch = (branch) => {
+    if (branch.slug === 'center') return;
+
     selectBranch(branch);
     navigate('/booking');
   };
@@ -59,6 +61,9 @@ export default function BranchSelectPage() {
                   branch={branch}
                   onSelect={handleSelectBranch}
                   selectLabel={pageCopy.chooseBranch}
+                  inactive={branch.slug === 'center'}
+                  inactiveLabel={pageCopy.centerInactiveLabel}
+                  inactiveText={pageCopy.centerInactiveText}
                   className={branch.slug === 'ryscanovka' ? 'order-first lg:order-none' : ''}
                 />
               ))}

@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowRight, Clock, Mail, MapPin, Phone, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { buildGoogleMapsHref, buildPhoneHref } from '../lib/contactLinks.js';
@@ -11,15 +11,23 @@ function formatWorkingHours(workingHours, labels) {
   const allSameHours = values.length > 0 && values.every((hours) => hours === values[0]);
 
   if (allSameHours) {
-    return `${labels.everyDay}: ${values[0]}`;
+    return labels.everyDay + ': ' + values[0];
   }
 
   return Object.entries(workingHours)
-    .map(([day, hours]) => `${labels.days[day] ?? day}: ${hours}`)
-    .join(' · ');
+    .map(([day, hours]) => (labels.days[day] ?? day) + ': ' + hours)
+    .join(' / ');
 }
 
-export default function BranchCard({ branch, onSelect, selectLabel, className = '' }) {
+export default function BranchCard({
+  branch,
+  onSelect,
+  selectLabel,
+  inactive = false,
+  inactiveLabel = '',
+  inactiveText = '',
+  className = '',
+}) {
   const { copy } = useTranslation();
   const branchCopy = copy.branches[branch.slug] ?? {};
   const branchName = branchCopy.name ?? branch.name;
@@ -28,9 +36,13 @@ export default function BranchCard({ branch, onSelect, selectLabel, className = 
   const mapsHref = buildGoogleMapsHref(branch.address, branch.mapsUrl);
   const phoneHref = buildPhoneHref(branch.phone);
 
+  const handleSelect = () => {
+    if (!inactive) onSelect(branch);
+  };
+
   return (
     <motion.article
-      className={`branch-card-shell group ${className}`}
+      className={'branch-card-shell group ' + (inactive ? 'branch-card-inactive ' : '') + className}
       variants={{
         hidden: { opacity: 0, y: 18 },
         visible: {
@@ -39,19 +51,20 @@ export default function BranchCard({ branch, onSelect, selectLabel, className = 
           transition: { duration: 0.64, ease: [0.22, 1, 0.36, 1] },
         },
       }}
-      whileHover={{ y: -4, scale: 1.01 }}
+      whileHover={inactive ? undefined : { y: -4, scale: 1.01 }}
     >
       <div className="branch-card-core">
         <motion.button
           type="button"
-          onClick={() => onSelect(branch)}
-          aria-label={`${buttonLabel}: ${branchName}`}
+          onClick={handleSelect}
+          aria-label={inactive ? branchName + ': ' + inactiveLabel : buttonLabel + ': ' + branchName}
+          aria-disabled={inactive}
           className="branch-card-media branch-card-media-button relative min-h-[19rem] overflow-hidden rounded-[1.55rem]"
-          whileTap={{ scale: 0.99 }}
+          whileTap={inactive ? undefined : { scale: 0.99 }}
         >
           <img
             src={branch.image}
-            alt={`${copy.branchCard.hallAlt} ${branchName}`}
+            alt={copy.branchCard.hallAlt + ' ' + branchName}
             loading="eager"
             decoding="async"
             fetchPriority="high"
@@ -62,6 +75,12 @@ export default function BranchCard({ branch, onSelect, selectLabel, className = 
           <div className="absolute left-5 top-5 grid h-14 w-14 place-items-center rounded-2xl border border-cream/20 bg-ink/45">
             <TiflisLogo className="h-10 w-10 text-cream" />
           </div>
+          {inactive ? (
+            <div className="branch-card-inactive-badge">
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              {inactiveLabel}
+            </div>
+          ) : null}
           <div className="absolute inset-x-0 bottom-0 p-6">
             <p className="text-xs font-bold uppercase tracking-[0.24em] text-gold">TIFLIS</p>
             <h2 className="font-display mt-2 text-5xl font-semibold leading-none text-cream sm:text-6xl">
@@ -72,6 +91,12 @@ export default function BranchCard({ branch, onSelect, selectLabel, className = 
 
         <div className="flex flex-1 flex-col p-5 sm:p-6">
           <p className="max-w-prose text-[15px] leading-7 text-cream/72">{branchDescription}</p>
+          {inactive ? (
+            <div className="branch-card-inactive-note">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
+              <span>{inactiveText}</span>
+            </div>
+          ) : null}
 
           <div className="mt-6 space-y-3.5 text-sm text-cream/76">
             <a
@@ -103,11 +128,12 @@ export default function BranchCard({ branch, onSelect, selectLabel, className = 
 
           <motion.button
             type="button"
-            onClick={() => onSelect(branch)}
-            className="public-red-button mt-7 w-full justify-center"
-            whileTap={{ scale: 0.98 }}
+            onClick={handleSelect}
+            disabled={inactive}
+            className={'public-red-button mt-7 w-full justify-center ' + (inactive ? 'branch-card-disabled-button' : '')}
+            whileTap={inactive ? undefined : { scale: 0.98 }}
           >
-            {buttonLabel}
+            {inactive ? inactiveLabel : buttonLabel}
             <span className="public-button-icon">
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
